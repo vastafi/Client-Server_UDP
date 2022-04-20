@@ -29,8 +29,7 @@ public class ServerSender implements Runnable {
         Graphics2D graphics = resizeImage.createGraphics();
         graphics.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
                 RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-        graphics.drawImage(imgToScale, 0, 0, 1024, 728, 0, 0, imgToScale.getWidth(),
-                imgToScale.getHeight(), null);
+        graphics.drawImage(imgToScale, 0, 0, 1024, 728, 0, 0, imgToScale.getWidth(),imgToScale.getHeight(), null);
         graphics.dispose();
 
         return resizeImage;
@@ -110,21 +109,12 @@ public class ServerSender implements Runnable {
 
     private void sendData() throws IOException {
         DatagramPacket sendPacket;
-        if (Listener.receiversPorts.isEmpty()) {
-            return;
-        }
-
         for (ByteBuffer byteBuffer : list) {
             for (String name : Listener.arrayList) {
                 InetAddress address = Listener.receiverAddress.get(name);
                 int port = Listener.receiversPorts.get(name);
                 sendPacket = new DatagramPacket(byteBuffer.array(), byteBuffer.capacity(), address, port);
                 Listener.datagramSocket.send(sendPacket);
-            }
-
-            long start = System.currentTimeMillis();
-            long end = start + 5;
-            while (System.currentTimeMillis() < end) {
             }
         }
     }
