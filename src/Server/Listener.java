@@ -6,15 +6,15 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class ServerListener implements Runnable {
+public class Listener implements Runnable {
 
     static DatagramSocket datagramSocket = null;
     static ArrayList<String> arrayList = new ArrayList<String>();
     static HashMap<String, Integer> receiversPorts = new HashMap<String, Integer>();
     static HashMap<String, InetAddress> receiverAddress = new HashMap<String, InetAddress>();
 
-    public ServerListener() throws SocketException, UnknownHostException {
-        datagramSocket = new DatagramSocket(9876);
+    public Listener() throws SocketException, UnknownHostException {
+        datagramSocket = new DatagramSocket(8086);
         new Thread(this).start();
     }
 
@@ -30,7 +30,6 @@ public class ServerListener implements Runnable {
                 exception.printStackTrace();
             }
         } else {
-
             System.out.println(name + " connected to the server.");
             ByteBuffer sendData = ByteBuffer.allocate(4);
             sendData.putInt(200);
@@ -53,13 +52,11 @@ public class ServerListener implements Runnable {
             } catch (IOException exception) {
                 exception.printStackTrace();
             }
-
             int port = receivePacket.getPort();
             String sentence = new String(receivePacket.getData(), 0, receivePacket.getLength());
             InetAddress address = receivePacket.getAddress();
             System.out.println("Recceived: " + sentence + " from " + port);
             String[] message = sentence.split(" ");
-
             if (message[0].equals("Hello")) {
                 helloRequestHandler(port,message[1], address);
             } else if (message[0].equals("Ready")) {

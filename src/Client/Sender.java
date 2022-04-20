@@ -1,6 +1,6 @@
 package Client;
 
-import Server.ServerListener;
+import Server.Listener;
 import Server.ServerSender;
 
 import javax.swing.*;
@@ -9,19 +9,19 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 
-public class ClientSender {
+public class Sender {
     private JFrame frame;
     public static JLabel jLabel;
 
-    ServerListener listener;
+    Listener listener;
     ServerSender sender;
 
     public static void main(String[] args) throws IOException {
         EventQueue.invokeLater(new Runnable() {
             public void run() {
                 try {
-                    ClientSender clientSender = new ClientSender();
-                    clientSender.frame.setVisible(true);
+                    Sender sender = new Sender();
+                    sender.frame.setVisible(true);
                 } catch (Exception exception) {
                     exception.printStackTrace();
                 }
@@ -29,7 +29,7 @@ public class ClientSender {
         });
     }
 
-    public ClientSender() {
+    public Sender() {
         init();
     }
 
@@ -44,14 +44,14 @@ public class ClientSender {
         JMenuBar jMenuBar = new JMenuBar();
         frame.setJMenuBar(jMenuBar);
 
-        JMenu jMenu = new JMenu("File");
+        JMenu jMenu = new JMenu("Share");
         jMenuBar.add(jMenu);
 
         JMenuItem Start = new JMenuItem("Share Screen");
         Start.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 try {
-                    listener = new ServerListener();
+                    listener = new Listener();
                     sender = new ServerSender();
                     JOptionPane.showMessageDialog(null, "You can minimize the screen, screen casting has started successfully. ", "Successful", JOptionPane.INFORMATION_MESSAGE);
                 } catch (Exception ex) {

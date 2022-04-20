@@ -34,10 +34,10 @@ public class Client implements Runnable{
 
     public Client(String name, String address) throws IOException {
         this.name = name;
-        System.out.println("Client running...");
+        System.out.println("Running...");
 
         datagramSocket = new DatagramSocket();
-        datagramSocket.setSoTimeout(35);
+        datagramSocket.setSoTimeout(15);
 
         inetAddress = InetAddress.getByName(address);
 
@@ -57,31 +57,24 @@ public class Client implements Runnable{
     }
 
     public boolean send() throws IOException {
-        if (counter == 100) {
+        if (counter == 300) {
             JOptionPane.showMessageDialog(null, "Server is down! Exiting...", "Information", JOptionPane.INFORMATION_MESSAGE);
             System.exit(0);
         }
         counter++;
-
         byte[] bytes = new byte[64008];
-
         if (isPresent == true) {
             name = JOptionPane.showInputDialog("You name");
         }
 
-
         String sentence = "Hello " + name;
-
         ByteBuffer buffer = ByteBuffer.allocate(sentence.getBytes().length);
         buffer.put(sentence.getBytes());
-
         DatagramPacket sendPacket = new DatagramPacket(buffer.array(), buffer.capacity(), inetAddress, 9876);
         datagramSocket.send(sendPacket);
-
         buffer = ByteBuffer.allocate(4);
         buffer.clear();
         buffer.rewind();
-
         DatagramPacket datagramPacket = new DatagramPacket(bytes, bytes.length);
 
         try {
@@ -140,7 +133,7 @@ public class Client implements Runnable{
                 datagramSocket.receive(receivedPacket);
                 timeCounter = 0;
             } catch (Exception ex) {
-                if (timeCounter == 300) {
+                if (timeCounter == 10000) {
                     JOptionPane.showMessageDialog(null, "Server is down! Exit!", "Information", JOptionPane.INFORMATION_MESSAGE);
                     System.exit(0);
                 }
@@ -199,7 +192,7 @@ public class Client implements Runnable{
         if (buffer != null) {
             ByteArrayInputStream bais = new ByteArrayInputStream(buffer.array());
             image = ImageIO.read(bais);
-            ClientReceiver.jLabel.setIcon(new ImageIcon(image));
+            Receiver.jLabel.setIcon(new ImageIcon(image));
         }
     }
 

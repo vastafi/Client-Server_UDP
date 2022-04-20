@@ -1,6 +1,6 @@
 package Server;
 
-import Client.ClientSender;
+import Client.Sender;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -18,12 +18,10 @@ import java.util.zip.Checksum;
 public class ServerSender implements Runnable {
 
     private InetAddress inetAddress = null;
-
     ArrayList<ByteBuffer> list = new ArrayList<ByteBuffer>();
 
     public ServerSender() throws IOException {
         new Thread(this).start();
-
     }
 
     public BufferedImage scale(BufferedImage imgToScale) {
@@ -118,16 +116,16 @@ public class ServerSender implements Runnable {
 
     private void sendData() throws IOException {
         DatagramPacket sendPacket;
-        if (ServerListener.receiversPorts.isEmpty()) {
+        if (Listener.receiversPorts.isEmpty()) {
             return;
         }
 
         for (ByteBuffer byteBuffer : list) {
-            for (String name : ServerListener.arrayList) {
-                InetAddress address = ServerListener.receiverAddress.get(name);
-                int port = ServerListener.receiversPorts.get(name);
+            for (String name : Listener.arrayList) {
+                InetAddress address = Listener.receiverAddress.get(name);
+                int port = Listener.receiversPorts.get(name);
                 sendPacket = new DatagramPacket(byteBuffer.array(), byteBuffer.capacity(), address, port);
-                ServerListener.datagramSocket.send(sendPacket);
+                Listener.datagramSocket.send(sendPacket);
             }
 
             long start = System.currentTimeMillis();
@@ -144,7 +142,7 @@ public class ServerSender implements Runnable {
             try {
                 list.clear();
                 BufferedImage screenshot = takeScreenShot();
-                ClientSender.jLabel.setIcon(new ImageIcon(screenshot));
+                Sender.jLabel.setIcon(new ImageIcon(screenshot));
                 splitScreenshot(screenshot);
                 sendData();
             } catch (Exception exception) {

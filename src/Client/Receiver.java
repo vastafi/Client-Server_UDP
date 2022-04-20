@@ -6,7 +6,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
 
-public class ClientReceiver {
+public class Receiver {
 
     private JFrame frame;
     static JLabel jLabel;
@@ -15,7 +15,7 @@ public class ClientReceiver {
     public static void main(String[] args) throws IOException {
         EventQueue.invokeLater(() -> {
             try {
-                ClientReceiver window = new ClientReceiver();
+                Receiver window = new Receiver();
                 window.frame.setVisible(true);
             } catch (Exception exception) {
                 exception.printStackTrace();
@@ -23,7 +23,7 @@ public class ClientReceiver {
         });
     }
 
-    public ClientReceiver() {
+    public Receiver() {
         init();
     }
 
