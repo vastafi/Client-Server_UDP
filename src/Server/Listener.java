@@ -18,7 +18,7 @@ public class Listener implements Runnable {
         new Thread(this).start();
     }
 
-    public void helloRequestHandler(int port, String name, InetAddress address) {
+    public void requestHandler(int port, String name, InetAddress address) {
         if (receiversPorts.containsKey(name)) {
             System.out.println("Warning!" + name + " is already connected to the server.");
             ByteBuffer sendData = ByteBuffer.allocate(4);
@@ -58,7 +58,7 @@ public class Listener implements Runnable {
             System.out.println("Recceived: " + sentence + " from " + port);
             String[] message = sentence.split(" ");
             if (message[0].equals("Hello")) {
-                helloRequestHandler(port,message[1], address);
+                requestHandler(port,message[1], address);
             } else if (message[0].equals("Ready")) {
                 receiversPorts.put(message[1],port);
                 receiverAddress.put(message[1],address);

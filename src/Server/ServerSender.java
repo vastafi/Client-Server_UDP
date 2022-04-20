@@ -36,17 +36,11 @@ public class ServerSender implements Runnable {
         return resizeImage;
     }
 
-    private BufferedImage takeScreenShot() throws HeadlessException, AWTException {
+    private BufferedImage takeScreen() throws HeadlessException, AWTException {
         BufferedImage image = new Robot().createScreenCapture(new Rectangle(Toolkit.getDefaultToolkit().getScreenSize()));
 
         BufferedImage scaledImage = scale(image);
         return scaledImage;
-    }
-
-    public long getChecksum(byte[] arr, int offset, int length) {
-        Checksum checksum = new CRC32();
-        checksum.update(arr, offset, length);
-        return checksum.getValue();
     }
 
     private void splitScreenshot(BufferedImage screenshot) throws IOException {
@@ -137,11 +131,10 @@ public class ServerSender implements Runnable {
 
     @Override
     public void run() {
-
         while (true) {
             try {
                 list.clear();
-                BufferedImage screenshot = takeScreenShot();
+                BufferedImage screenshot = takeScreen();
                 Sender.jLabel.setIcon(new ImageIcon(screenshot));
                 splitScreenshot(screenshot);
                 sendData();

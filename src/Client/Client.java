@@ -40,50 +40,42 @@ public class Client implements Runnable{
         datagramSocket.setSoTimeout(15);
 
         inetAddress = InetAddress.getByName(address);
-
         send();
         setPath();
-
         connected = true;
-        datagramSocket.setSoTimeout(100);
+        datagramSocket.setSoTimeout(60);
 
         new Thread(this).start();
     }
 
-    public void setPath() {
-        FileSystemView fileSystemView = FileSystemView.getFileSystemView();
-        File[] files = fileSystemView.getRoots();
-        this.path = fileSystemView.getHomeDirectory().toString();
-    }
-
     public boolean send() throws IOException {
-        if (counter == 300) {
-            JOptionPane.showMessageDialog(null, "Server is down! Exiting...", "Information", JOptionPane.INFORMATION_MESSAGE);
+        if (counter == 280) {
+            JOptionPane.showMessageDialog(null, "Server is down! Exiting...", "Alert", JOptionPane.INFORMATION_MESSAGE);
             System.exit(0);
         }
         counter++;
-        byte[] bytes = new byte[64008];
+        byte[] bytes = new byte[500];
         if (isPresent == true) {
             name = JOptionPane.showInputDialog("You name");
         }
-
-        String sentence = "Hello " + name;
-        ByteBuffer buffer = ByteBuffer.allocate(sentence.getBytes().length);
-        buffer.put(sentence.getBytes());
-        DatagramPacket sendPacket = new DatagramPacket(buffer.array(), buffer.capacity(), inetAddress, 9876);
-        datagramSocket.send(sendPacket);
-        buffer = ByteBuffer.allocate(4);
-        buffer.clear();
-        buffer.rewind();
-        DatagramPacket datagramPacket = new DatagramPacket(bytes, bytes.length);
+        int capacity = 4;
+        String sentence = "Hello" + name;
+        ByteBuffer byteBuffer = ByteBuffer.allocate(sentence.getBytes().length);
+        byteBuffer.put(sentence.getBytes());
+        DatagramPacket datagramPackets = new DatagramPacket(byteBuffer.array(), byteBuffer.capacity(), inetAddress, 9876);
+        datagramSocket.send(datagramPackets);
+        byteBuffer = ByteBuffer.allocate(capacity);
+        byteBuffer.clear();
+        byteBuffer.rewind();
+        DatagramPacket datagram = new DatagramPacket(bytes, bytes.length);
 
         try {
-            datagramSocket.receive(datagramPacket);
+            datagramSocket.receive(datagram);
 
             for (int i = 0; i < 4; i++) {
-                buffer.put(datagramPacket.getData()[i]);
+                byteBuffer.put(datagram.getData()[i]);
             }
-            int result = buffer.getInt(0);
+            int result = byteBuffer.getInt(0);
             if (result == 200) {
 
             } else if (result == 500) {
@@ -92,23 +84,30 @@ public class Client implements Runnable{
                 return false;
             }
 
-        } catch (Exception ex) {
+        } catch (Exception exception) {
             send();
             return false;
         }
 
-        buffer.clear();
-        buffer.rewind();
+        byteBuffer.clear();
+        byteBuffer.rewind();
 
         sentence = "ready" + name;
-        buffer = ByteBuffer.allocate(sentence.getBytes().length);
-        buffer.put(sentence.getBytes());
+        byteBuffer = ByteBuffer.allocate(sentence.getBytes().length);
+        byteBuffer.put(sentence.getBytes());
 
-        sendPacket = new DatagramPacket(buffer.array(), buffer.capacity(), inetAddress, 9876);
-        datagramSocket.send(sendPacket);
+        datagramPackets = new DatagramPacket(byteBuffer.array(), byteBuffer.capacity(), inetAddress, 9876);
+        datagramSocket.send(datagramPackets);
 
         return true;
     }
+
+    public void setPath() {
+        FileSystemView fileSystemView = FileSystemView.getFileSystemView();
+        File[] files = fileSystemView.getRoots();
+        this.path = fileSystemView.getHomeDirectory().toString();
+    }
+
 
     public void sendFin() throws IOException {
         String sentence = "fin" + name;
@@ -118,21 +117,20 @@ public class Client implements Runnable{
         datagramSocket.send(sendPacket);
     }
 
-    public void receivePackets() throws IOException {
+    public void receive() throws IOException {
         timeCounter++;
-        byte[] receiveData = new byte[64020];
-        Checksum checksum = new CRC32();
+        byte[] receiveData = new byte[65000];
+        Checksum checkSum = new CRC32();
         int expectedNumber = 1;
         int numberOfPackets = 0;
         ByteBuffer buffer = null;
 
         while (true) {
-
             DatagramPacket receivedPacket = new DatagramPacket(receiveData, receiveData.length);
             try {
                 datagramSocket.receive(receivedPacket);
                 timeCounter = 0;
-            } catch (Exception ex) {
+            } catch (Exception exception) {
                 if (timeCounter == 10000) {
                     JOptionPane.showMessageDialog(null, "Server is down! Exit!", "Information", JOptionPane.INFORMATION_MESSAGE);
                     System.exit(0);
@@ -144,18 +142,17 @@ public class Client implements Runnable{
 
             ByteBuffer data = ByteBuffer.allocate(packetLength);
             data.put(receiveData, 0, packetLength);
-
             data.rewind();
 
-            long checksumVal = data.getLong();
-            int receivedChunkNumber = data.getInt();
+            long checkSumVal = data.getLong();
+            int receivedNumber = data.getInt();
 
-            if (receivedChunkNumber == -1) {
-                checksum.reset();
-                checksum.update(data.array(), 8, data.capacity() - 8);
-                long calculatedChecksum = checksum.getValue();
+            if (receivedNumber == -1) {
+                checkSum.reset();
+                checkSum.update(data.array(), 8, data.capacity() - 8);
+                long calculatedChecksum = checkSum.getValue();
 
-                if ((calculatedChecksum == checksumVal) && (numberOfPackets + 1 == expectedNumber)) {
+                if ((calculatedChecksum == checkSumVal) && (numberOfPackets + 1 == expectedNumber)) {
                     break;
                 }
                 return;
@@ -165,16 +162,16 @@ public class Client implements Runnable{
             int totalSize = data.getInt();
 
             data.rewind();
-            checksum.reset();
-            checksum.update(data.array(), 20, loadSize);
-            long calculatedChecksum = checksum.getValue();
+            checkSum.reset();
+            checkSum.update(data.array(), 20, loadSize);
+            long calculatedChecksum = checkSum.getValue();
 
-            if (calculatedChecksum != checksumVal) {
+            if (calculatedChecksum != checkSumVal) {
                 System.out.println("Expected: " + calculatedChecksum);
-                System.out.println("Expected: " + checksumVal);
+                System.out.println("Expected: " + checkSumVal);
                 return;
             }
-            if (receivedChunkNumber != expectedNumber) {
+            if (receivedNumber != expectedNumber) {
                 System.out.println("Packet loss");
                 return;
             }
@@ -190,8 +187,8 @@ public class Client implements Runnable{
         }
 
         if (buffer != null) {
-            ByteArrayInputStream bais = new ByteArrayInputStream(buffer.array());
-            image = ImageIO.read(bais);
+            ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(buffer.array());
+            image = ImageIO.read(byteArrayInputStream);
             Receiver.jLabel.setIcon(new ImageIcon(image));
         }
     }
@@ -200,7 +197,7 @@ public class Client implements Runnable{
     public void run() {
         while (true) {
             try {
-                receivePackets();
+                receive();
             } catch (IOException exception) {
                 exception.printStackTrace();
             }

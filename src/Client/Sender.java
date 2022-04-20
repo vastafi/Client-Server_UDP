@@ -49,12 +49,12 @@ public class Sender {
 
         JMenuItem Start = new JMenuItem("Share Screen");
         Start.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
+            public void actionPerformed(ActionEvent event) {
                 try {
                     listener = new Listener();
                     sender = new ServerSender();
-                    JOptionPane.showMessageDialog(null, "You can minimize the screen, screen casting has started successfully. ", "Successful", JOptionPane.INFORMATION_MESSAGE);
-                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(null, "Screen casting has started successfully.You can minimize the screen! ", "Successful", JOptionPane.INFORMATION_MESSAGE);
+                } catch (Exception exception) {
                     JOptionPane.showMessageDialog(null, "Something is wrong!", "Error", JOptionPane.ERROR_MESSAGE);
                 }
             }

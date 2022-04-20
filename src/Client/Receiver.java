@@ -47,8 +47,8 @@ public class Receiver {
         JMenuBar menuBar = new JMenuBar();
         frame.setJMenuBar(menuBar);
 
-        JMenu mnNewMenu = new JMenu("File");
-        menuBar.add(mnNewMenu);
+        JMenu menu = new JMenu("File");
+        menuBar.add(menu);
 
         JMenuItem connect = new JMenuItem("Connect");
         connect.addActionListener(actionEvent -> {
@@ -68,7 +68,7 @@ public class Receiver {
                 System.exit(0);
             }
         });
-        mnNewMenu.add(connect);
+        menu.add(connect);
 
         jLabel = new JLabel();
         frame.getContentPane().add(jLabel, BorderLayout.CENTER);
